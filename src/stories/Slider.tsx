@@ -1,11 +1,19 @@
-import React, { useState, useEffect, useRef, type CSSProperties } from 'react';
+import React, { useState, useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 
 export interface SliderProps<T> {
   items: T[];
-  renderItem: (item: T, index: number) => React.ReactNode;
-  /** Determines the movement type: 'pixel' moves by a fixed number of pixels, 'item' moves by one item width (plus gap) */
+  renderItem: (item: T, index: number) => ReactNode;
+  /**
+   * Determines the movement type:
+   * - 'pixel': moves by a fixed number of pixels (using moveValue)
+   * - 'item': moves by a given number of items (moveValue = number of items to scroll)
+   */
   moveBy: 'pixel' | 'item';
-  /** The value used for movement when moveBy is 'pixel'. Ignored if moveBy is 'item'. */
+  /**
+   * The value used for movement.
+   * In 'pixel' mode, it is the number of pixels to move per click.
+   * In 'item' mode, it is the number of items to scroll per click.
+   */
   moveValue: number;
   /** Gap between items in pixels */
   gap?: number;
@@ -13,6 +21,12 @@ export interface SliderProps<T> {
   orientation?: 'horizontal' | 'vertical';
   /** Whether the slider should be responsive */
   responsive?: boolean;
+  /**
+   * Determines how the items are positioned. Working only with `moveBy: 'item'` mode.
+   * 'edge' – aligns the items to the edge (current behavior).
+   * 'center' – centers the active item within the container.
+   */
+  centrateBy?: 'edge' | 'center';
 }
 
 export function Slider<T>({
@@ -23,11 +37,14 @@ export function Slider<T>({
                             gap = 0,
                             orientation = 'horizontal',
                             responsive = false,
+                            centrateBy = 'edge',
                           }: SliderProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
   const [offset, setOffset] = useState(0);
   const [maxOffset, setMaxOffset] = useState(0);
+  // State for active index (used in center mode)
+  const [activeIndex, setActiveIndex] = useState(0);
 
   // Calculate the maximum offset so that the last element is fully visible
   useEffect(() => {
@@ -52,22 +69,79 @@ export function Slider<T>({
   }, [orientation, items, gap, moveValue, moveBy]);
 
   const handleNext = () => {
-    let increment = moveValue;
-    if (moveBy === 'item' && sliderRef.current && sliderRef.current.firstElementChild) {
-      const firstChild = sliderRef.current.firstElementChild as HTMLElement;
-      // For 'item' mode, use the dimension of the first item plus gap
-      increment = (orientation === 'horizontal' ? firstChild.offsetWidth : firstChild.offsetHeight) + gap;
+    if (moveBy === 'pixel') {
+      // Pixel mode: simply add moveValue (in pixels)
+      setOffset((prev) => Math.min(prev + moveValue, maxOffset));
+    } else if (moveBy === 'item') {
+      if (centrateBy === 'center') {
+        // Center mode: update activeIndex and compute offset so that the active element is centered
+        const newIndex = Math.min(activeIndex + moveValue, items.length - 1);
+        setActiveIndex(newIndex);
+        if (containerRef.current && sliderRef.current) {
+          const containerSize =
+            orientation === 'horizontal'
+              ? containerRef.current.offsetWidth
+              : containerRef.current.offsetHeight;
+          const activeElement = sliderRef.current.children[newIndex] as HTMLElement;
+          let itemCenter = 0;
+          if (orientation === 'horizontal') {
+            itemCenter = activeElement.offsetLeft + activeElement.offsetWidth / 2;
+          } else {
+            itemCenter = activeElement.offsetTop + activeElement.offsetHeight / 2;
+          }
+          let newOffset = itemCenter - containerSize / 2;
+          newOffset = Math.max(0, Math.min(newOffset, maxOffset));
+          setOffset(newOffset);
+        }
+      } else {
+        // Edge mode: current behavior – scroll by (moveValue * (item dimension + gap))
+        if (sliderRef.current && sliderRef.current.firstElementChild) {
+          const firstChild = sliderRef.current.firstElementChild as HTMLElement;
+          const itemSize =
+            (orientation === 'horizontal' ? firstChild.offsetWidth : firstChild.offsetHeight) + gap;
+          const increment = moveValue * itemSize;
+          setOffset((prev) => Math.min(prev + increment, maxOffset));
+        }
+      }
     }
-    setOffset((prev) => Math.min(prev + increment, maxOffset));
   };
 
   const handlePrev = () => {
-    let increment = moveValue;
-    if (moveBy === 'item' && sliderRef.current && sliderRef.current.firstElementChild) {
-      const firstChild = sliderRef.current.firstElementChild as HTMLElement;
-      increment = (orientation === 'horizontal' ? firstChild.offsetWidth : firstChild.offsetHeight) + gap;
+    if (moveBy === 'pixel') {
+      // Pixel mode: simply subtract moveValue (in pixels)
+      setOffset((prev) => Math.max(prev - moveValue, 0));
+    } else if (moveBy === 'item') {
+      if (centrateBy === 'center') {
+        // Center mode: update activeIndex and compute offset so that the active element is centered
+        const newIndex = Math.max(activeIndex - moveValue, 0);
+        setActiveIndex(newIndex);
+        if (containerRef.current && sliderRef.current) {
+          const containerSize =
+            orientation === 'horizontal'
+              ? containerRef.current.offsetWidth
+              : containerRef.current.offsetHeight;
+          const activeElement = sliderRef.current.children[newIndex] as HTMLElement;
+          let itemCenter = 0;
+          if (orientation === 'horizontal') {
+            itemCenter = activeElement.offsetLeft + activeElement.offsetWidth / 2;
+          } else {
+            itemCenter = activeElement.offsetTop + activeElement.offsetHeight / 2;
+          }
+          let newOffset = itemCenter - containerSize / 2;
+          newOffset = Math.max(0, Math.min(newOffset, maxOffset));
+          setOffset(newOffset);
+        }
+      } else {
+        // Edge mode: current behavior
+        if (sliderRef.current && sliderRef.current.firstElementChild) {
+          const firstChild = sliderRef.current.firstElementChild as HTMLElement;
+          const itemSize =
+            (orientation === 'horizontal' ? firstChild.offsetWidth : firstChild.offsetHeight) + gap;
+          const increment = moveValue * itemSize;
+          setOffset((prev) => Math.max(prev - increment, 0));
+        }
+      }
     }
-    setOffset((prev) => Math.max(prev - increment, 0));
   };
 
   // Determine transform style based on orientation and current offset
@@ -112,34 +186,46 @@ export function Slider<T>({
       {/* Navigation Arrows */}
       {offset > 0 && (
         <button
-          style={{
-            position: 'absolute',
-            left: orientation === 'horizontal' ? 0 : '50%',
-            top: orientation === 'vertical' ? 0 : '50%',
-            transform:
-              orientation === 'horizontal'
-                ? 'translateY(-50%)'
-                : 'translateX(-50%)',
-          }}
+          style={
+            orientation === 'horizontal'
+              ? {
+                position: 'absolute',
+                left: 0,
+                top: '50%',
+                transform: 'translateY(-50%)',
+              }
+              : {
+                position: 'absolute',
+                top: 0,
+                left: '50%',
+                transform: 'translateX(-50%)',
+              }
+          }
           onClick={handlePrev}
         >
-          &#8592;
+          {orientation === 'horizontal' ? '←' : '▲'}
         </button>
       )}
       {offset < maxOffset && (
         <button
-          style={{
-            position: 'absolute',
-            right: orientation === 'horizontal' ? 0 : '50%',
-            bottom: orientation === 'vertical' ? 0 : '50%',
-            transform:
-              orientation === 'horizontal'
-                ? 'translateY(-50%)'
-                : 'translateX(-50%)',
-          }}
+          style={
+            orientation === 'horizontal'
+              ? {
+                position: 'absolute',
+                right: 0,
+                top: '50%',
+                transform: 'translateY(-50%)',
+              }
+              : {
+                position: 'absolute',
+                bottom: 0,
+                left: '50%',
+                transform: 'translateX(-50%)',
+              }
+          }
           onClick={handleNext}
         >
-          &#8594;
+          {orientation === 'horizontal' ? '→' : '▼'}
         </button>
       )}
     </div>

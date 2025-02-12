@@ -79,18 +79,30 @@ export default {
     },
     moveValue: {
       control: 'number',
-      description: 'Count of the pixels for moving toward (only in a PIXEL mode).',
+      description:
+        'Count of pixels to move per click. In "item" mode, the number of items to scroll per click ' +
+        '//todo: currently working only with a PIXEL mode',
+    },
+    gap: {
+      control: 'number',
+      description: 'Gap between items in pixels.',
     },
   },
 } as Meta<SliderProps<DummyItem>>;
 
 const Template: StoryFn<SliderProps<DummyItem>> = (args) => (
-  <div style={{maxWidth: 600, margin: '0 auto'}}>
+  // For the vertical slider, we will set fix height of the container
+  <div
+    style={{
+      maxWidth: args.orientation === 'horizontal' ? 600 : 'auto',
+      maxHeight: args.orientation === 'vertical' ? 300 : 'auto',
+      margin: '0 auto',
+    }}
+  >
     <Slider
       {...args}
       renderItem={(item) => (
         <div
-          key={item.id}
           style={{
             border: '1px solid #ccc',
             borderRadius: 4,
@@ -107,7 +119,7 @@ const Template: StoryFn<SliderProps<DummyItem>> = (args) => (
             />
           )}
           <h3>{item.title}</h3>
-          <p style={{fontSize: 12, color: '#666'}}>{item.description}</p>
+          <p style={{ fontSize: 12, color: '#666' }}>{item.description}</p>
         </div>
       )}
       items={dummyItems}
@@ -118,7 +130,8 @@ const Template: StoryFn<SliderProps<DummyItem>> = (args) => (
 export const MoveByPixel = Template.bind({});
 MoveByPixel.args = {
   moveBy: 'pixel', // todo: logic in development
-  moveValue: 170,  // Зсув у пікселях (враховуючи розміри елемента + відступи)
+  moveValue: 150,  // Count of pixel for 1 step
+  gap: 10,         // space beetwen the elements
   orientation: 'horizontal',
   responsive: false,
 };
@@ -126,7 +139,8 @@ MoveByPixel.args = {
 export const MoveByItem = Template.bind({});
 MoveByItem.args = {
   moveBy: 'item', // todo: logic in development
-  moveValue: 170,  // Значення зсуву використовується аналогічно, але може бути адаптовано для розрахунку ширини елемента
+  moveValue: 2,   // Needs to be count of slides that needs to skip for 1 step, but // todo: currently not working
+  gap: 10,
   orientation: 'horizontal',
   responsive: false,
 };
@@ -134,7 +148,8 @@ MoveByItem.args = {
 export const VerticalSlider = Template.bind({});
 VerticalSlider.args = {
   moveBy: 'pixel',
-  moveValue: 250, // Для вертикального слайдера — значення зсуву по осі Y
+  moveValue: 200,
+  gap: 15,
   orientation: 'vertical',
   responsive: false,
 };
