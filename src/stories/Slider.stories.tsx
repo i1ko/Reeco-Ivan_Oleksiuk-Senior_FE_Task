@@ -8,8 +8,7 @@ interface DummyItem {
   description?: string;
   image?: string;
 }
-
-// Демонстраційні дані
+// Test data
 const dummyItems: DummyItem[] = [
   {
     id: 1,
@@ -37,6 +36,24 @@ const dummyItems: DummyItem[] = [
   },
   {
     id: 5,
+    title: 'Product 5',
+    description: 'Description of the product 5',
+    image: 'https://picsum.photos/200/300?random=8',
+  },
+  {
+    id: 6,
+    title: 'Product 5',
+    description: 'Description of the product 5',
+    image: 'https://picsum.photos/200/300?random=8',
+  },
+  {
+    id: 7,
+    title: 'Product 5',
+    description: 'Description of the product 5',
+    image: 'https://picsum.photos/200/300?random=8',
+  },
+  {
+    id: 8,
     title: 'Product 5',
     description: 'Description of the product 5',
     image: 'https://picsum.photos/200/300?random=8',
