@@ -57,5 +57,5 @@ This command launches Storybook in your default browser, allowing you to view an
 The configuration is located in the .storybook directory. This setup uses Vite as the builder for a fast development experience. If needed, you can switch to Webpack by modifying the builder settings in .storybook/main.js.
 
 ## Issues to fix and Improvements to be done:
-- [IMPROVEMENT]: to centrate items different modes
-
+- <del>[IMPROVEMENT]: to centrate items different modes</del>
+- [BUG]: bug that appears due to first load without the images
