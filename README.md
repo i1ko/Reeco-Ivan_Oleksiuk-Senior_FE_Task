@@ -82,3 +82,4 @@ The configuration is located in the .storybook directory. This setup uses Vite a
 - [IMPROVEMENT]: added ability to set initialSlide
 - [BUG]: rollup cause the problems where install the packages need to be provided with
 ```--legacy-peer-deps```
+- [EXAMPLE]: example with vertical alignment is not working because we need to change a wrapper 

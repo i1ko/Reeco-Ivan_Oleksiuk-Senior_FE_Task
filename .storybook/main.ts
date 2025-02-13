@@ -18,5 +18,8 @@ const config: StorybookConfig = {
       url: 'https://your-slider-library-storybook-url', // URL, де розгорнуто Storybook для бібліотеки
     },
   },
+  typescript: {
+    reactDocgen: "react-docgen-typescript",
+  },
 };
 export default config;

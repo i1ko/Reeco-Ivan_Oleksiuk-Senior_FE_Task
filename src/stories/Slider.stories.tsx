@@ -1,6 +1,6 @@
 import React from 'react';
-import { Meta, StoryFn } from '@storybook/react';
-import {Slider, SliderMoveBy, SliderOrientation, SliderProps} from './Slider';
+import {Meta, StoryFn} from '@storybook/react';
+import {Slider, SliderCentrateBy, SliderMoveBy, SliderOrientation, SliderProps} from './Slider';
 
 interface DummyItem {
   id: number;
@@ -91,14 +91,20 @@ export default {
     moveBy: {
       control: {
         type: 'radio',
-        options: ['pixel', 'item'],
+        options: Object.keys(SliderMoveBy)
       },
       description: 'Choose the mode where either you can move toward with items or with pixels.',
     },
     orientation: {
       control: {
         type: 'radio',
-        options: ['horizontal', 'vertical'],
+        options: Object.keys(SliderOrientation),
+      },
+    },
+    centrateBy: {
+      control: {
+        type: 'radio',
+        options: Object.keys(SliderCentrateBy),
       },
     },
     moveValue: {
@@ -116,9 +122,10 @@ const Template: StoryFn<SliderProps<DummyItem>> = (args) => (
   // For the vertical slider, we will set fix height of the container
   <div
     style={{
-      maxWidth: args.orientation === 'horizontal' ? 600 : 'auto',
-      maxHeight: args.orientation === 'vertical' ? 300 : 'auto',
       margin: '0 auto',
+      maxWidth: args.orientation === SliderOrientation.Horizontal ? 600 : 'auto',
+      maxHeight: args.orientation === SliderOrientation.Vertical ? '300px' : 'auto',
+      height: args.orientation === SliderOrientation.Vertical ? '300px' : 'auto',
     }}
   >
     <Slider
