@@ -149,23 +149,6 @@ export function Slider<T>({
     };
   }, [orientation, items, gap, moveValue, moveBy, offset]);
 
-  // Helper function to check if the next part of the slider is hidden
-  const showNext = () => {
-    if (!containerRef.current || !sliderRef.current) return false;
-    if (offset >= maxOffset) return false;
-    const containerSize =
-      isHorizontalOrientation
-        ? containerRef.current.offsetWidth
-        : containerRef.current.offsetHeight;
-    const lastChild = sliderRef.current.lastElementChild as HTMLElement;
-    if (!lastChild) return false;
-    const lastChildEnd =
-      isHorizontalOrientation
-        ? lastChild.offsetLeft + lastChild.offsetWidth
-        : lastChild.offsetTop + lastChild.offsetHeight;
-    return lastChildEnd > offset + containerSize;
-  };
-
   const handleNext = () => {
     if (isMovedByPixel) {
       setOffset((prev) => {
@@ -312,7 +295,7 @@ export function Slider<T>({
           {isHorizontalOrientation ? '←' : '▲'}
         </button>
       )}
-      {showNext() && (
+      {offset < maxOffset && (
         <button
           style={
             isHorizontalOrientation
