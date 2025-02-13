@@ -93,7 +93,7 @@ export default {
         type: 'radio',
         options: ['pixel', 'item'],
       },
-      description: '[IN DEVELOPMENT]: Defines the logic for moving the slider. Currently only affects values for demonstration purposes.',
+      description: 'Choose the mode where either you can move toward with items or with pixels.',
     },
     orientation: {
       control: {
@@ -103,9 +103,7 @@ export default {
     },
     moveValue: {
       control: 'number',
-      description:
-        'Count of pixels to move per click. In "item" mode, the number of items to scroll per click ' +
-        '//todo: currently working only with a PIXEL mode',
+      description: 'Count of pixels or elements to move toward per click',
     },
     gap: {
       control: 'number',
@@ -164,7 +162,7 @@ DefaultSlider.args = {};
 export const MoveByItem = Template.bind({});
 MoveByItem.args = {
   moveBy: SliderMoveBy.Item,
-  moveValue: 2,   // Needs to be count of slides that needs to skip for 1 step, but // todo: currently not working
+  moveValue: 2,
   gap: 10,
   orientation: SliderOrientation.Horizontal,
 };
