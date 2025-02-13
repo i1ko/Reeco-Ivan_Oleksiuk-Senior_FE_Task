@@ -26,13 +26,13 @@ export interface SliderProps<T> {
    * - SliderMoveBy.Pixel: moves by a fixed number of pixels (using moveValue)
    * - SliderMoveBy.Item: moves by a given number of items (moveValue = number of items to scroll)
    */
-  moveBy: SliderMoveBy;
+  moveBy?: SliderMoveBy;
   /**
    * The value used for movement.
    * In 'pixel' mode, it is the number of pixels to move per click.
    * In 'item' mode, it is the number of items to scroll per click.
    */
-  moveValue: number;
+  moveValue?: number;
   /** Gap between items in pixels */
   gap?: number;
   /** Orientation of the slider: Horizontal or Vertical. Default is Horizontal. */
@@ -48,12 +48,19 @@ export interface SliderProps<T> {
 export function Slider<T>({
                             items,
                             renderItem,
-                            moveBy,
-                            moveValue,
+                            moveBy = SliderMoveBy.Item,
+                            moveValue = (moveBy === SliderMoveBy.Item ? 1 : 150),
                             gap = 0,
                             orientation = SliderOrientation.Horizontal,
                             centrateBy = SliderCentrateBy.Edge,
                           }: SliderProps<T>) {
+  const isHorizontalOrientation = orientation === SliderOrientation.Horizontal,
+        isVerticalOrientation = orientation === SliderOrientation.Vertical,
+        isMovedByPixel = moveBy === SliderMoveBy.Pixel,
+        isMovedByItem = moveBy === SliderMoveBy.Item,
+        isCentrateByCenter = centrateBy === SliderCentrateBy.Center,
+        isCentrateByEdge = centrateBy === SliderCentrateBy.Edge;
+
   const containerRef = useRef<HTMLDivElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
   const [offset, setOffset] = useState(0);
@@ -67,11 +74,11 @@ export function Slider<T>({
   const calculateMaxOffset = () => {
     if (containerRef.current && sliderRef.current) {
       const containerSize =
-        orientation === SliderOrientation.Horizontal
+        isHorizontalOrientation
           ? containerRef.current.offsetWidth
           : containerRef.current.offsetHeight;
       const sliderSize =
-        orientation === SliderOrientation.Horizontal
+        isHorizontalOrientation
           ? sliderRef.current.scrollWidth
           : sliderRef.current.scrollHeight;
       const newMaxOffset = Math.max(sliderSize - containerSize, 0);
@@ -103,11 +110,11 @@ export function Slider<T>({
   // Debug logging on offset change
   useEffect(() => {
     const containerSize =
-      orientation === SliderOrientation.Horizontal
+      isHorizontalOrientation
         ? containerRef?.current?.offsetWidth
         : containerRef?.current?.offsetHeight;
     const sliderSize =
-      orientation === SliderOrientation.Horizontal
+      isHorizontalOrientation
         ? sliderRef?.current?.scrollWidth
         : sliderRef?.current?.scrollHeight;
     const newMaxOffset = Math.max(sliderSize! - containerSize!, 0);
@@ -147,20 +154,20 @@ export function Slider<T>({
     if (!containerRef.current || !sliderRef.current) return false;
     if (offset >= maxOffset) return false;
     const containerSize =
-      orientation === SliderOrientation.Horizontal
+      isHorizontalOrientation
         ? containerRef.current.offsetWidth
         : containerRef.current.offsetHeight;
     const lastChild = sliderRef.current.lastElementChild as HTMLElement;
     if (!lastChild) return false;
     const lastChildEnd =
-      orientation === SliderOrientation.Horizontal
+      isHorizontalOrientation
         ? lastChild.offsetLeft + lastChild.offsetWidth
         : lastChild.offsetTop + lastChild.offsetHeight;
     return lastChildEnd > offset + containerSize;
   };
 
   const handleNext = () => {
-    if (moveBy === SliderMoveBy.Pixel) {
+    if (isMovedByPixel) {
       setOffset((prev) => {
         const newOffset = Math.min(prev + moveValue, maxOffset);
         console.log('[handleNext] Pixel mode:', { prev, moveValue, newOffset, maxOffset });
@@ -168,19 +175,19 @@ export function Slider<T>({
       });
       return;
     }
-    if (moveBy === SliderMoveBy.Item) {
-      if (centrateBy === SliderCentrateBy.Center) {
+    if (isMovedByItem) {
+      if (isCentrateByCenter) {
         const newIndex = Math.min(activeIndex + moveValue, items.length - 1);
         console.log('[handleNext] Center mode: newIndex:', newIndex);
         setActiveIndex(newIndex);
         if (containerRef.current && sliderRef.current) {
           const containerSize =
-            orientation === SliderOrientation.Horizontal
+            isHorizontalOrientation
               ? containerRef.current.offsetWidth
               : containerRef.current.offsetHeight;
           const activeElement = sliderRef.current.children[newIndex] as HTMLElement;
           let itemCenter = 0;
-          if (orientation === SliderOrientation.Horizontal) {
+          if (isHorizontalOrientation) {
             itemCenter = activeElement.offsetLeft + activeElement.offsetWidth / 2;
           } else {
             itemCenter = activeElement.offsetTop + activeElement.offsetHeight / 2;
@@ -194,7 +201,7 @@ export function Slider<T>({
         if (sliderRef.current && sliderRef.current.firstElementChild) {
           const firstChild = sliderRef.current.firstElementChild as HTMLElement;
           const itemSize =
-            (orientation === SliderOrientation.Horizontal ? firstChild.offsetWidth : firstChild.offsetHeight) + gap;
+            (isHorizontalOrientation ? firstChild.offsetWidth : firstChild.offsetHeight) + gap;
           const increment = moveValue * itemSize;
           console.log('[handleNext] Edge mode:', { itemSize, moveValue, increment, currentOffset: offset, maxOffset });
           setOffset((prev) => Math.min(prev + increment, maxOffset));
@@ -205,25 +212,25 @@ export function Slider<T>({
   };
 
   const handlePrev = () => {
-    if (moveBy === SliderMoveBy.Pixel) {
+    if (isMovedByPixel) {
       setOffset((prev) => {
         const newOffset = Math.max(prev - moveValue, 0);
         console.log('[handlePrev] Pixel mode:', { prev, moveValue, newOffset });
         return newOffset;
       });
-    } else if (moveBy === SliderMoveBy.Item) {
-      if (centrateBy === SliderCentrateBy.Center) {
+    } else if (isMovedByItem) {
+      if (isCentrateByCenter) {
         const newIndex = Math.max(activeIndex - moveValue, 0);
         console.log('[handlePrev] Center mode: newIndex:', newIndex);
         setActiveIndex(newIndex);
         if (containerRef.current && sliderRef.current) {
           const containerSize =
-            orientation === SliderOrientation.Horizontal
+            isHorizontalOrientation
               ? containerRef.current.offsetWidth
               : containerRef.current.offsetHeight;
           const activeElement = sliderRef.current.children[newIndex] as HTMLElement;
           let itemCenter = 0;
-          if (orientation === SliderOrientation.Horizontal) {
+          if (isHorizontalOrientation) {
             itemCenter = activeElement.offsetLeft + activeElement.offsetWidth / 2;
           } else {
             itemCenter = activeElement.offsetTop + activeElement.offsetHeight / 2;
@@ -237,7 +244,7 @@ export function Slider<T>({
         if (sliderRef.current && sliderRef.current.firstElementChild) {
           const firstChild = sliderRef.current.firstElementChild as HTMLElement;
           const itemSize =
-            (orientation === SliderOrientation.Horizontal ? firstChild.offsetWidth : firstChild.offsetHeight) + gap;
+            (isHorizontalOrientation ? firstChild.offsetWidth : firstChild.offsetHeight) + gap;
           const increment = moveValue * itemSize;
           console.log('[handlePrev] Edge mode:', { itemSize, moveValue, increment, currentOffset: offset });
           setOffset((prev) => Math.max(prev - increment, 0));
@@ -247,7 +254,7 @@ export function Slider<T>({
   };
 
   const transformStyle =
-    orientation === SliderOrientation.Horizontal
+    isHorizontalOrientation
       ? `translateX(-${offset}px)`
       : `translateY(-${offset}px)`;
 
@@ -260,7 +267,7 @@ export function Slider<T>({
 
   const sliderStyle: CSSProperties = {
     display: 'flex',
-    flexDirection: orientation === SliderOrientation.Horizontal ? 'row' : 'column',
+    flexDirection: isHorizontalOrientation ? 'row' : 'column',
     transform: transformStyle,
     transition: 'transform 0.3s ease-in-out',
   };
@@ -274,9 +281,9 @@ export function Slider<T>({
             style={{
               flexShrink: 0,
               marginRight:
-                orientation === SliderOrientation.Horizontal && index !== items.length - 1 ? gap : 0,
+                isHorizontalOrientation && index !== items.length - 1 ? gap : 0,
               marginBottom:
-                orientation === SliderOrientation.Vertical && index !== items.length - 1 ? gap : 0,
+                isVerticalOrientation && index !== items.length - 1 ? gap : 0,
             }}
           >
             {renderItem(item, index)}
@@ -286,7 +293,7 @@ export function Slider<T>({
       {offset > 0 && (
         <button
           style={
-            orientation === SliderOrientation.Horizontal
+            isHorizontalOrientation
               ? {
                 position: 'absolute',
                 left: 0,
@@ -302,13 +309,13 @@ export function Slider<T>({
           }
           onClick={handlePrev}
         >
-          {orientation === SliderOrientation.Horizontal ? '←' : '▲'}
+          {isHorizontalOrientation ? '←' : '▲'}
         </button>
       )}
       {showNext() && (
         <button
           style={
-            orientation === SliderOrientation.Horizontal
+            isHorizontalOrientation
               ? {
                 position: 'absolute',
                 right: 0,
@@ -324,7 +331,7 @@ export function Slider<T>({
           }
           onClick={handleNext}
         >
-          {orientation === SliderOrientation.Horizontal ? '→' : '▼'}
+          {isHorizontalOrientation ? '→' : '▼'}
         </button>
       )}
     </div>
