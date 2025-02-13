@@ -153,20 +153,20 @@ const Template: StoryFn<SliderProps<DummyItem>> = (args) => (
 
 export const MoveByPixel = Template.bind({});
 MoveByPixel.args = {
-  moveBy: SliderMoveBy.Pixel, // todo: logic in development
+  moveBy: SliderMoveBy.Pixel,
   moveValue: 150,  // Count of pixel for 1 step
   gap: 10,         // space beetwen the elements
   orientation: SliderOrientation.Horizontal,
-  responsive: false,
 };
+export const DefaultSlider = Template.bind({});
+DefaultSlider.args = {};
 
 export const MoveByItem = Template.bind({});
 MoveByItem.args = {
-  moveBy: SliderMoveBy.Item, // todo: logic in development
+  moveBy: SliderMoveBy.Item,
   moveValue: 2,   // Needs to be count of slides that needs to skip for 1 step, but // todo: currently not working
   gap: 10,
   orientation: SliderOrientation.Horizontal,
-  responsive: false,
 };
 
 export const VerticalSlider = Template.bind({});
@@ -175,5 +175,4 @@ VerticalSlider.args = {
   moveValue: 200,
   gap: 15,
   orientation: SliderOrientation.Vertical,
-  responsive: false,
 };

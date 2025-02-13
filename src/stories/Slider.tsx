@@ -37,8 +37,6 @@ export interface SliderProps<T> {
   gap?: number;
   /** Orientation of the slider: Horizontal or Vertical. Default is Horizontal. */
   orientation?: SliderOrientation;
-  /** Whether the slider should be responsive */
-  responsive?: boolean;
   /**
    * Determines how the items are positioned. Working only with `moveBy: SliderMoveBy.Item` mode.
    * SliderCentrateBy.Edge – aligns the items to the edge (current behavior).
@@ -54,7 +52,6 @@ export function Slider<T>({
                             moveValue,
                             gap = 0,
                             orientation = SliderOrientation.Horizontal,
-                            responsive = false,
                             centrateBy = SliderCentrateBy.Edge,
                           }: SliderProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -257,8 +254,8 @@ export function Slider<T>({
   const containerStyle: CSSProperties = {
     overflow: 'hidden',
     position: 'relative',
-    width: responsive ? '100%' : 'auto',
-    height: responsive ? '100%' : 'auto',
+    width: 'auto',
+    height: 'auto',
   };
 
   const sliderStyle: CSSProperties = {
