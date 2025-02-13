@@ -58,5 +58,5 @@ The configuration is located in the .storybook directory. This setup uses Vite a
 
 ## Issues to fix and Improvements to be done:
 - <del>[IMPROVEMENT]: to centrate items different modes</del>
-- [BUG]: bug that appears due to first load without the images
+- <del>[BUG]: bug that appears due to first load without the images</del>
 - [IMPROVEMENT]: added ability to set initialSlide

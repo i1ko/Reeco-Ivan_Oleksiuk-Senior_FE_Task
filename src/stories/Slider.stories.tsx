@@ -1,6 +1,6 @@
 import React from 'react';
 import { Meta, StoryFn } from '@storybook/react';
-import { Slider, SliderProps } from './Slider';
+import {Slider, SliderMoveBy, SliderOrientation, SliderProps} from './Slider';
 
 interface DummyItem {
   id: number;
@@ -153,27 +153,27 @@ const Template: StoryFn<SliderProps<DummyItem>> = (args) => (
 
 export const MoveByPixel = Template.bind({});
 MoveByPixel.args = {
-  moveBy: 'pixel', // todo: logic in development
+  moveBy: SliderMoveBy.Pixel, // todo: logic in development
   moveValue: 150,  // Count of pixel for 1 step
   gap: 10,         // space beetwen the elements
-  orientation: 'horizontal',
+  orientation: SliderOrientation.Horizontal,
   responsive: false,
 };
 
 export const MoveByItem = Template.bind({});
 MoveByItem.args = {
-  moveBy: 'item', // todo: logic in development
+  moveBy: SliderMoveBy.Item, // todo: logic in development
   moveValue: 2,   // Needs to be count of slides that needs to skip for 1 step, but // todo: currently not working
   gap: 10,
-  orientation: 'horizontal',
+  orientation: SliderOrientation.Horizontal,
   responsive: false,
 };
 
 export const VerticalSlider = Template.bind({});
 VerticalSlider.args = {
-  moveBy: 'pixel',
+  moveBy: SliderMoveBy.Pixel,
   moveValue: 200,
   gap: 15,
-  orientation: 'vertical',
+  orientation: SliderOrientation.Vertical,
   responsive: false,
 };
