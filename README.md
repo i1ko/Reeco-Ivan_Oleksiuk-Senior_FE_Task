@@ -4,7 +4,17 @@ This repository contains a React-based slider library built with TypeScript. The
 
 **To test, I recommend to install project and run storybook!**  
 
-### A typical top-level directory layout (ntbd!)
+### Introduction
+This slider library (referred to as "React-Best-Slider") is designed to provide a robust, flexible, and modern approach to implementing sliders in React applications. It offers:
+
+- Render Prop approach for rendering items (i.e., passing items via props and using a renderItem function).
+- Optionally supporting "move by pixel" or "move by item".
+- Configurable orientation (horizontal or vertical).
+- Different centering strategies (e.g., edge alignment vs. center alignment).
+- A built-in Storybook environment to showcase and test the slider in isolation.
+
+
+### A typical top-level directory layout (todo!)
 
     .
     ├── src                     # Source code for components
@@ -55,6 +65,18 @@ This command launches Storybook in your default browser, allowing you to view an
 
 ### Storybook Configuration: 
 The configuration is located in the .storybook directory. This setup uses Vite as the builder for a fast development experience. If needed, you can switch to Webpack by modifying the builder settings in .storybook/main.js.
+
+
+### Render Prop vs. Children
+**Why do we use render prop with an items array?**
+1. Data-driven approach: It’s common in real-world scenarios to have an array of data items (e.g., from an API). The slider can iterate over these items internally, rendering each one via a "renderItem" callback.
+2. Clear contract: By passing an array of items plus a rendering function, you centralize data handling while giving full control over how each item is displayed.
+3. Predictable and testable: This pattern ensures the slider’s logic is testable, and the rendering function can be altered without affecting the slider’s internal structure.
+
+**Why not just children?**
+
+- A children-based approach offers more flexibility in placing arbitrary JSX elements inside the slider. However, that flexibility can complicate indexing, measuring the size of each child, etc.
+- By providing a render prop, we ensure the slider code only needs to focus on the logic of sliding, while the caller is responsible for the shape of each item.
 
 ## Issues to fix and Improvements to be done:
 - [IMPROVEMENT]: added ability to set initialSlide
