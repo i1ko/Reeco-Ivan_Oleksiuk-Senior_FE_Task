@@ -118,43 +118,52 @@ export default {
   },
 } as Meta<SliderProps<DummyItem>>;
 
-const Template: StoryFn<SliderProps<DummyItem>> = (args) => (
-  // For the vertical slider, we will set fix height of the container
-  <div
-    style={{
-      margin: '0 auto',
-      maxWidth: args.orientation === SliderOrientation.Horizontal ? 600 : 'auto',
-      maxHeight: args.orientation === SliderOrientation.Vertical ? '300px' : 'auto',
-      height: args.orientation === SliderOrientation.Vertical ? '300px' : 'auto',
-    }}
-  >
-    <Slider
-      {...args}
-      renderItem={(item) => (
-        <div
-          style={{
-            border: '1px solid #ccc',
-            borderRadius: 4,
-            padding: 16,
-            minWidth: 150,
-            textAlign: 'center',
-          }}
-        >
-          {item.image && (
-            <img
-              src={item.image}
-              alt={item.title}
-              style={{width: '100%', height: 'auto', marginBottom: 8}}
-            />
-          )}
-          <h3>{item.title}</h3>
-          <p style={{ fontSize: 12, color: '#666' }}>{item.description}</p>
-        </div>
-      )}
-      items={dummyItems}
-    />
-  </div>
-);
+const Template: StoryFn<SliderProps<DummyItem>> = (args) => {
+  const isHorizontalOrientation = args.orientation === SliderOrientation.Horizontal;
+  const isVerticalOrientation = args.orientation === SliderOrientation.Vertical;
+  return (
+    // For the vertical slider, we will set fix height of the container
+    <div
+      style={{
+        margin: '0 auto',
+        maxWidth: isHorizontalOrientation ? 600 : 'auto',
+        maxHeight: isVerticalOrientation ? '300px' : 'auto',
+        height: isVerticalOrientation ? '300px' : 'auto',
+        overflow: isVerticalOrientation ? 'hidden' : 'unset',
+      }}
+    >
+      <Slider
+        {...args}
+        renderItem={(item) => (
+          <div
+            style={{
+              border: '1px solid #ccc',
+              borderRadius: 4,
+              padding: 16,
+              minWidth: 150,
+              textAlign: 'center',
+            }}
+          >
+            {item.image && (
+              <img
+                src={item.image}
+                alt={item.title}
+                style={{
+                  width: isHorizontalOrientation ? '100%' : '20%',
+                  height: isHorizontalOrientation ? 'auto' : '20%',
+                  marginBottom: 8,
+                }}
+              />
+            )}
+            <h3>{item.title}</h3>
+            <p style={{fontSize: 12, color: '#666'}}>{item.description}</p>
+          </div>
+        )}
+        items={dummyItems}
+      />
+    </div>
+  );
+}
 
 export const MoveByPixel = Template.bind({});
 MoveByPixel.args = {
