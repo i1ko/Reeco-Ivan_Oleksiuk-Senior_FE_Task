@@ -67,7 +67,7 @@ export function Slider<T>({
         isCentrateByEdge = centrateBy === SliderCentrateBy.Edge;
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const sliderRef = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLUListElement>(null);
   const [offset, setOffset] = useState(0);
   const [maxOffset, setMaxOffset] = useState(0);
   // State for active index (used in center mode)
@@ -248,24 +248,30 @@ export function Slider<T>({
     flexDirection: isHorizontalOrientation ? 'row' : 'column',
     transform: transformStyle,
     transition: 'transform 0.3s ease-in-out',
+    listStyle: 'none',
+    padding: 0,
+    margin: 0,
   };
 
   return (
     <div style={finalContainerStyle} ref={containerRef}>
-      <div style={sliderStyle} ref={sliderRef}>
+      <ul style={sliderStyle} ref={sliderRef}>
         {items.map((item, index) => (
-          <div
+          <li
             key={index}
             style={{
+              listStyleType: 'none',
+              padding: 0,
+              margin: 0,
               flexShrink: 0,
               marginRight: isHorizontalOrientation && index !== items.length - 1 ? gap : 0,
               marginBottom: isVerticalOrientation && index !== items.length - 1 ? gap : 0,
             }}
           >
             {renderItem(item, index)}
-          </div>
+          </li>
         ))}
-      </div>
+      </ul>
       {offset > 0 && (
         <button
           style={
