@@ -189,4 +189,5 @@ VerticalSlider.args = {
   moveValue: 200,
   gap: 15,
   orientation: SliderOrientation.Vertical,
+  containerStyle: { height: '300px', overflow: 'hidden' },
 };

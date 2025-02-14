@@ -43,6 +43,10 @@ export interface SliderProps<T> {
    * SliderCentrateBy.Center – centers the active item within the container.
    */
   centrateBy?: SliderCentrateBy;
+  /**
+   * Optional container style for the slider. Especially useful in vertical mode to fix a height.
+   */
+  containerStyle?: CSSProperties;
 }
 
 export function Slider<T>({
@@ -53,6 +57,7 @@ export function Slider<T>({
                             gap = 0,
                             orientation = SliderOrientation.Horizontal,
                             centrateBy = SliderCentrateBy.Edge,
+                            containerStyle: customContainerStyle = {}, // Allow custom container styles
                           }: SliderProps<T>) {
   const isHorizontalOrientation = orientation === SliderOrientation.Horizontal,
         isVerticalOrientation = orientation === SliderOrientation.Vertical,
@@ -70,17 +75,24 @@ export function Slider<T>({
   // Ref to store the previous maxOffset
   const previousMaxOffsetRef = useRef(0);
 
+  // Default container style – can be overridden by customContainerStyle prop.
+  const defaultContainerStyle: CSSProperties = {
+    overflow: 'hidden',
+    position: 'relative',
+    width: 'auto',
+    height: 'auto',
+  };
+  const finalContainerStyle = { ...defaultContainerStyle, ...customContainerStyle };
+
   // Function for recalculating maximum displacement
   const calculateMaxOffset = () => {
     if (containerRef.current && sliderRef.current) {
-      const containerSize =
-        isHorizontalOrientation
-          ? containerRef.current.offsetWidth
-          : containerRef.current.offsetHeight;
-      const sliderSize =
-        isHorizontalOrientation
-          ? sliderRef.current.scrollWidth
-          : sliderRef.current.scrollHeight;
+      const containerSize = isHorizontalOrientation
+        ? containerRef.current.offsetWidth
+        : containerRef.current.offsetHeight;
+      const sliderSize = isHorizontalOrientation
+        ? sliderRef.current.scrollWidth
+        : sliderRef.current.scrollHeight;
       const newMaxOffset = Math.max(sliderSize - containerSize, 0);
       console.log('[calculateMaxOffset]: recalculating...');
       console.table({
@@ -164,17 +176,13 @@ export function Slider<T>({
         console.log('[handleNext] Center mode: newIndex:', newIndex);
         setActiveIndex(newIndex);
         if (containerRef.current && sliderRef.current) {
-          const containerSize =
-            isHorizontalOrientation
-              ? containerRef.current.offsetWidth
-              : containerRef.current.offsetHeight;
+          const containerSize = isHorizontalOrientation
+            ? containerRef.current.offsetWidth
+            : containerRef.current.offsetHeight;
           const activeElement = sliderRef.current.children[newIndex] as HTMLElement;
-          let itemCenter = 0;
-          if (isHorizontalOrientation) {
-            itemCenter = activeElement.offsetLeft + activeElement.offsetWidth / 2;
-          } else {
-            itemCenter = activeElement.offsetTop + activeElement.offsetHeight / 2;
-          }
+          let itemCenter = isHorizontalOrientation
+            ? activeElement.offsetLeft + activeElement.offsetWidth / 2
+            : activeElement.offsetTop + activeElement.offsetHeight / 2;
           let newOffset = itemCenter - containerSize / 2;
           newOffset = Math.max(0, Math.min(newOffset, maxOffset));
           console.log('[handleNext] Center mode:', { itemCenter, containerSize, newOffset, maxOffset });
@@ -183,8 +191,7 @@ export function Slider<T>({
       } else {
         if (sliderRef.current && sliderRef.current.firstElementChild) {
           const firstChild = sliderRef.current.firstElementChild as HTMLElement;
-          const itemSize =
-            (isHorizontalOrientation ? firstChild.offsetWidth : firstChild.offsetHeight) + gap;
+          const itemSize = (isHorizontalOrientation ? firstChild.offsetWidth : firstChild.offsetHeight) + gap;
           const increment = moveValue * itemSize;
           console.log('[handleNext] Edge mode:', { itemSize, moveValue, increment, currentOffset: offset, maxOffset });
           setOffset((prev) => Math.min(prev + increment, maxOffset));
@@ -207,17 +214,13 @@ export function Slider<T>({
         console.log('[handlePrev] Center mode: newIndex:', newIndex);
         setActiveIndex(newIndex);
         if (containerRef.current && sliderRef.current) {
-          const containerSize =
-            isHorizontalOrientation
-              ? containerRef.current.offsetWidth
-              : containerRef.current.offsetHeight;
+          const containerSize = isHorizontalOrientation
+            ? containerRef.current.offsetWidth
+            : containerRef.current.offsetHeight;
           const activeElement = sliderRef.current.children[newIndex] as HTMLElement;
-          let itemCenter = 0;
-          if (isHorizontalOrientation) {
-            itemCenter = activeElement.offsetLeft + activeElement.offsetWidth / 2;
-          } else {
-            itemCenter = activeElement.offsetTop + activeElement.offsetHeight / 2;
-          }
+          let itemCenter = isHorizontalOrientation
+            ? activeElement.offsetLeft + activeElement.offsetWidth / 2
+            : activeElement.offsetTop + activeElement.offsetHeight / 2;
           let newOffset = itemCenter - containerSize / 2;
           newOffset = Math.max(0, Math.min(newOffset, maxOffset));
           console.log('[handlePrev] Center mode:', { itemCenter, containerSize, newOffset, maxOffset });
@@ -236,17 +239,9 @@ export function Slider<T>({
     }
   };
 
-  const transformStyle =
-    isHorizontalOrientation
-      ? `translateX(-${offset}px)`
-      : `translateY(-${offset}px)`;
-
-  const containerStyle: CSSProperties = {
-    overflow: 'hidden',
-    position: 'relative',
-    width: 'auto',
-    height: 'auto',
-  };
+  const transformStyle = isHorizontalOrientation
+    ? `translateX(-${offset}px)`
+    : `translateY(-${offset}px)`;
 
   const sliderStyle: CSSProperties = {
     display: 'flex',
@@ -256,17 +251,15 @@ export function Slider<T>({
   };
 
   return (
-    <div style={containerStyle} ref={containerRef}>
+    <div style={finalContainerStyle} ref={containerRef}>
       <div style={sliderStyle} ref={sliderRef}>
         {items.map((item, index) => (
           <div
             key={index}
             style={{
               flexShrink: 0,
-              marginRight:
-                isHorizontalOrientation && index !== items.length - 1 ? gap : 0,
-              marginBottom:
-                isVerticalOrientation && index !== items.length - 1 ? gap : 0,
+              marginRight: isHorizontalOrientation && index !== items.length - 1 ? gap : 0,
+              marginBottom: isVerticalOrientation && index !== items.length - 1 ? gap : 0,
             }}
           >
             {renderItem(item, index)}
