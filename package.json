@@ -9,6 +9,11 @@
     "email": "oleksiuk13@gmail.com",
     "url": "https://github.com/i1ko"
   },
+  "keywords": [
+    "slider",
+    "swiper",
+    "carousel"
+  ],
   "dependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
